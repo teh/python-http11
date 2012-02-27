@@ -12,18 +12,14 @@ def pipe(in_, out_):
         out_.sendall(d)
 
 
-def connect_backend(parser, backend_address):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect(backend_address)
+def connect_backend(sock, backend_sock, parser):
     request = ['{} {} HTTP/1.0'.format(parser.method, parser.uri)]
     for k, v in parser.headers.items():
         request.append('{}: {}'.format(k, v))
     request.append('\r\n')
-    sock.sendall('\r\n'.join(request))
-    return sock, ''
+    backend_sock.sendall('\r\n'.join(request))
 
-
-def handler(sock, parser, body_start):
+def handle_rest(sock, backend_sock, parser, body_start):
 #    print parser.method, parser.uri, parser.fragment, parser.path, parser.query, parser.version
     if parser.headers.get('expect') == '100-continue':
         sock.sendall('HTTP/1.1 100 Continue\r\n\r\n')
@@ -31,7 +27,7 @@ def handler(sock, parser, body_start):
     # From here on we send a cleaned up request on to the correct
     # client and, after establishing the connection, pipe
     # bidirectionally.
-    backend_sock, response = connect_backend(parser, ('127.0.0.1', 8000))
+    connect_backend(sock, backend_sock, parser)
     if body_start:
         backend_sock.sendall(body_start)
 
@@ -48,8 +44,7 @@ def handler(sock, parser, body_start):
     except socket.error:
         pass
 
-
-def handle_internal(sock):
+def handle_header(sock, from_):
     parser = http11.HttpParser()
     buf = bytearray(2**14)
     length, offset = 0, 0
@@ -69,9 +64,23 @@ def handle_internal(sock):
             break
         offset = length
     body_start = buf[parser.body_start:length]
-    handler(sock, parser, body_start)
+    parser.headers.update(remote=from_)
+    return parser, body_start
 
-l = eventlet.listen(('127.0.0.1', 5000), backlog=50)
-while True:
-    sock, _ = l.accept()
-    eventlet.spawn_n(handle_internal, sock)
+def handle(sock, from_):
+    parser, body_start = handle_header(sock, from_)
+
+    backend_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    backend_sock.connect(('127.0.0.1', 8000))
+
+    handle_rest(sock, backend_sock, parser, body_start)
+
+def serve(listen_sock):
+    while True:
+        sock, from_ = listen_sock.accept()
+        eventlet.spawn_n(handle, sock, from_)
+
+if __name__ == '__main__':
+    l = eventlet.listen(('127.0.0.1', 5000), backlog=50)
+    serve(l)
+    

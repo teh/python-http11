@@ -1,2 +1,11 @@
+*pyc
+*pyo
 http11.so
 http11.c
+build
+debian/files
+debian/python-http11.debhelper.log
+debian/python-http11.postinst.debhelper
+debian/python-http11.prerm.debhelper
+debian/python-http11.substvars
+debian/python-http11/

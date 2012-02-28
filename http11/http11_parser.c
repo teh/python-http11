@@ -40,6 +40,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <dbg.h>
 
 #define LEN(AT, FPC) (FPC - buffer - parser->AT)
 #define MARK(M,FPC) (parser->M = (FPC) - buffer)
@@ -93,6 +94,7 @@ size_t http_parser_execute(http_parser *parser, const char *buffer, size_t len, 
 
   const char *p, *pe;
   int cs = parser->cs;
+
   assert(off <= len && "offset past end of buffer");
 
   p = buffer+off;

@@ -4,25 +4,27 @@ This is a hacky, unfinished python binding for mongrel2's ragel-powered parser. 
 
 # Example
 
-    import http11
+import http11
 
-    q = """\
-    GET /echo HTTP/1.1\r
-    User-Agent: curl/7.21.0\r
-    Host: www.local:7999\r
-    Accept: */*\r
-    \r
-    """
+```python
+q = """\
+GET /echo HTTP/1.1\r
+User-Agent: curl/7.21.0\r
+Host: www.local:7999\r
+Accept: */*\r
+\r
+"""
 
-    parser = http11.HttpParser()
-    parser.execute(q, len(q))
-    print parser.is_finished(), parser.has_error()
-    print parser.headers
-    print parser.method, parser.path, parser.version
+parser = http11.HttpParser()
+parser.execute(q, len(q))
+print parser.is_finished(), parser.has_error()
+print parser.headers
+print parser.method, parser.path, parser.version
 
-    # 1 0
-    # {'host': 'www.local:7999', 'accept': '*/*', 'user-agent': 'curl/7.21.0'}
-    # GET /echo HTTP/1.1
+# 1 0
+# {'host': 'www.local:7999', 'accept': '*/*', 'user-agent': 'curl/7.21.0'}
+# GET /echo HTTP/1.1
+```
 
 # Licence
 

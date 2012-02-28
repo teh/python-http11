@@ -4,9 +4,9 @@ This is a hacky, unfinished python binding for mongrel2's ragel-powered parser. 
 
 # Example
 
+```python
 import http11
 
-```python
 q = """\
 GET /echo HTTP/1.1\r
 User-Agent: curl/7.21.0\r

@@ -28,7 +28,7 @@ def handle_rest(sock, backend_sock, parser, body_start):
     connect_backend(sock, backend_sock, parser)
     if body_start:
         backend_sock.sendall(body_start)
-    eventlet.spawn_n(pipe(sock, backend_sock))
+    eventlet.spawn_n(pipe, sock, backend_sock)
 
     pipe(backend_sock, sock)
     try:

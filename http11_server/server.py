@@ -31,14 +31,6 @@ def handle_rest(sock, backend_sock, parser, body_start):
     eventlet.spawn_n(pipe, sock, backend_sock)
 
     pipe(backend_sock, sock)
-    try:
-        backend_sock.shutdown(socket.SHUT_RDWR)
-    except socket.error:
-        pass
-    try:
-        sock.shutdown(socket.SHUT_RDWR)
-    except socket.error:
-        pass
 
 def handle_header(sock, from_):
     parser = http11.HttpParser()
